@@ -1,14 +1,21 @@
-# BillNexa — Offline billing studio
+# BillNexa — Offline billing studio v1.4
 
-Android WebView app with an offline HTML/CSS/JavaScript interface and Java native bridges for printing, sharing text and backup. No internet permission or external backend. Browser version is also usable separately; print to PDF requires a browser that supports printing.
+Package: `in.pixelfire.billnexa`. Android 16 target (API 36), minimum API 23. JDK 17, Gradle 8.11.1, Android Gradle Plugin 8.10.1. No account, analytics, ad SDK or Internet permission. Native PDF/JPG output, offline catalogue, invoices and backups.
 
-## Build an APK
-1. Open this folder in Android Studio with JDK 17, Android SDK 35 and Gradle 8.9. The project does not include Gradle wrapper binaries. Use an installed Gradle 8.9 (`gradle :app:assembleDebug`) or generate a wrapper using `gradle wrapper --gradle-version 8.9`.
-2. APK output: `app/build/outputs/apk/debug/app-debug.apk`.
-3. Alternatively upload the **contents** of this folder (including `.github`) to a GitHub repository. Run Actions > Build BillNexa APK; download the artifact and extract the APK.
-4. A Play release requires signing, release build, current target SDK and policy review; no release APK/AAB is included. The package ID can be changed before publication.
+## Build
+GitHub Actions → Build BillNexa APK. Pushes build a debug APK for device tests and an unsigned release AAB for compilation verification. Do NOT upload the unsigned AAB or debug APK to Play Console.
+For Play upload, generate a dedicated upload keystore locally, protect its backup, and add these repository Actions secrets:
+- BILLNEXA_KEYSTORE_BASE64 (base64 of the upload keystore)
+- BILLNEXA_STORE_PASSWORD
+- BILLNEXA_KEY_ALIAS
+- BILLNEXA_KEY_PASSWORD
 
-## Usage
-Set your business details under More, add customers/products, create an invoice, enter payment, then Save & preview. Select Print / Save PDF and choose Save as PDF in the system print dialog. Share summary opens Android sharing (not a PDF attachment). Use Export backup and Restore backup to transfer your local data. Existing invoice snapshots are kept when customer/product details change. Data is local, unencrypted at application level, and can be lost on uninstall. Do not share unprotected backups.
+Never commit passwords or keystore files. Run the workflow manually with signed_release enabled. Download BillNexa-signed-Play-AAB. Keep the same upload key for future versions and enroll in Play App Signing. Android Studio can also generate a signed release bundle locally.
 
-GST mode is manual and tax-exclusive, with CGST/SGST or IGST on discounted item prices. Verify rates, tax jurisdiction, invoice fields, rounding and GST compliance independently before business use. No GST portal, e-invoice, inventory stock management, cloud sync, payment processing or subscriptions in this version. The Android app uses a bundled web interface, not fully native UI widgets. No Android build or device test has been performed in the creation environment.
+## Privacy
+Privacy policy is included in the app (More → Privacy policy) and in docs/privacy.html. Enable GitHub Pages for main /docs (or host the document on your own domain). Verify the public non-PDF URL opens without login before using it in Play Console. Confirm the listed support email is active.
+
+## Before production
+See PLAY-STORE.md. Test real devices and the Play internal/closed track. Verify GST requirements independently. The app does not process payments or integrate with GST/e-invoicing services.
+
+Development by Ravi Vadhiya

@@ -162,6 +162,11 @@ public class MainActivity extends Activity {
     }
     @Override protected void onSaveInstanceState(Bundle state){super.onSaveInstanceState(state);state.putString("pendingPdf",pendingPdf);}
     private class Bridge {
+        @JavascriptInterface public void clearExportCache(){pdfWorker.execute(()->{
+            File root=new File(getCacheDir(),"invoice-share");
+            File[] folders=root.listFiles();
+            if(folders!=null)for(File dir:folders){if(!dir.isDirectory())continue;File[] files=dir.listFiles();if(files!=null)for(File f:files)if(f.isFile())f.delete();dir.delete();}
+        });}
         @JavascriptInterface public void exportPdf(String json,String action){runOnUiThread(()->handlePdf(json,action));}
         @JavascriptInterface public void printInvoice(String name,String html){runOnUiThread(()->{
             if(printWeb!=null)printWeb.destroy();

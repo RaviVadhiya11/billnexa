@@ -1,5 +1,13 @@
 name: Build BillNexa APK
-on: [push, workflow_dispatch]
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      signed_release:
+        description: Build Play upload-key signed AAB (requires repository secrets)
+        type: boolean
+        default: false
 permissions:
   contents: read
 jobs:
@@ -18,19 +26,19 @@ jobs:
           log-accepted-android-sdk-licenses: 'false'
       - uses: gradle/actions/setup-gradle@v4
         with:
-          gradle-version: '8.9'
-      - name: Install Android SDK 35
-        run: sdkmanager 'platforms;android-35' 'build-tools;35.0.0'
+          gradle-version: '8.11.1'
+      - name: Install Android SDK 36
+        run: sdkmanager 'platforms;android-36' 'build-tools;35.0.0'
       - name: Verify Android SDK and Gradle
         run: |
           sdkmanager --version
           gradle --version
-      - name: Build debug APK with bounded network retry
+      - name: Build debug APK and unsigned release AAB
         shell: bash
         run: |
           set -o pipefail
           for attempt in 1 2 3; do
-            if gradle :app:assembleDebug --no-daemon --max-workers=2 --stacktrace 2>&1 | tee "$RUNNER_TEMP/billnexa-build.log"; then
+            if gradle :app:assembleDebug :app:bundleRelease --no-daemon --max-workers=2 --stacktrace 2>&1 | tee "$RUNNER_TEMP/billnexa-build.log"; then
               exit 0
             fi
             if ! grep -Eqi 'status code (429|502|503|504)|Too Many Requests|Read timed out|Connection reset' "$RUNNER_TEMP/billnexa-build.log"; then
@@ -45,4 +53,34 @@ jobs:
         with:
           name: BillNexa-debug-apk
           path: app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
+      - uses: actions/upload-artifact@v4
+        with:
+          name: BillNexa-unsigned-release-AAB-NOT-FOR-PLAY-UPLOAD
+          path: app/build/outputs/bundle/release/app-release.aab
+          if-no-files-found: error
+      - name: Build signed Play release AAB
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.signed_release }}
+        shell: bash
+        env:
+          BILLNEXA_KEYSTORE_BASE64: ${{ secrets.BILLNEXA_KEYSTORE_BASE64 }}
+          BILLNEXA_STORE_PASSWORD: ${{ secrets.BILLNEXA_STORE_PASSWORD }}
+          BILLNEXA_KEY_ALIAS: ${{ secrets.BILLNEXA_KEY_ALIAS }}
+          BILLNEXA_KEY_PASSWORD: ${{ secrets.BILLNEXA_KEY_PASSWORD }}
+        run: |
+          set -euo pipefail
+          for key in BILLNEXA_KEYSTORE_BASE64 BILLNEXA_STORE_PASSWORD BILLNEXA_KEY_ALIAS BILLNEXA_KEY_PASSWORD; do
+            if [ -z "${!key:-}" ]; then echo "::error::Missing release signing secret: $key"; exit 1; fi
+          done
+          umask 077
+          export BILLNEXA_KEYSTORE_PATH="$RUNNER_TEMP/billnexa-upload.jks"
+          trap 'rm -f "$BILLNEXA_KEYSTORE_PATH"' EXIT
+          printf '%s' "$BILLNEXA_KEYSTORE_BASE64" | base64 --decode > "$BILLNEXA_KEYSTORE_PATH"
+          gradle :app:bundleRelease --no-daemon --max-workers=2
+          jarsigner -verify app/build/outputs/bundle/release/app-release.aab
+      - uses: actions/upload-artifact@v4
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.signed_release }}
+        with:
+          name: BillNexa-signed-Play-AAB
+          path: app/build/outputs/bundle/release/app-release.aab
           if-no-files-found: error
