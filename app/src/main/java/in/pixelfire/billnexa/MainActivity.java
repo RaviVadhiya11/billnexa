@@ -22,6 +22,9 @@ import android.webkit.*;
 import android.widget.Toast;
 import android.view.View;
 import android.view.WindowInsets;
+import android.view.WindowInsetsController;
+import android.view.WindowManager;
+import android.widget.FrameLayout;
 import java.io.OutputStream;
 import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
@@ -37,15 +40,40 @@ public class MainActivity extends Activity {
     @Override public void onCreate(Bundle state) {
         super.onCreate(state);
         if(state!=null)pendingPdf=state.getString("pendingPdf");
+        android.view.Window window=getWindow();
+        window.clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN | WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS | WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION);
+        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+        window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+        final int navy=Color.rgb(4,16,46);
+        FrameLayout root=new FrameLayout(this);
+        root.setBackgroundColor(navy);
         web=new WebView(this);
-        setContentView(web);
-        if(android.os.Build.VERSION.SDK_INT>=35) {
-            web.setOnApplyWindowInsetsListener((v,insets)->{
+        web.setBackgroundColor(Color.WHITE);
+        root.addView(web,new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT,FrameLayout.LayoutParams.MATCH_PARENT));
+        setContentView(root);
+        if(android.os.Build.VERSION.SDK_INT>=30) {
+            window.setDecorFitsSystemWindows(false);
+            window.setStatusBarColor(Color.TRANSPARENT);
+            window.setNavigationBarColor(Color.TRANSPARENT);
+            window.setStatusBarContrastEnforced(false);
+            window.setNavigationBarContrastEnforced(false);
+            WindowInsetsController controller=window.getInsetsController();
+            if(controller!=null){
+                controller.show(WindowInsets.Type.systemBars());
+                controller.setSystemBarsAppearance(0,WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS | WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS);
+            }
+            root.setOnApplyWindowInsetsListener((v,insets)->{
                 android.graphics.Insets bars=insets.getInsets(WindowInsets.Type.systemBars() | WindowInsets.Type.displayCutout());
-                v.setPadding(bars.left,bars.top,bars.right,bars.bottom);
-                return insets;
+                android.graphics.Insets ime=insets.getInsets(WindowInsets.Type.ime());
+                v.setPadding(bars.left,bars.top,bars.right,Math.max(bars.bottom,ime.bottom));
+                if(web!=null)web.evaluateJavascript("document.documentElement.classList.toggle('keyboard-open',"+insets.isVisible(WindowInsets.Type.ime())+")",null);
+                return WindowInsets.CONSUMED;
             });
-            web.requestApplyInsets();
+            root.requestApplyInsets();
+        }else{
+            window.setStatusBarColor(navy);
+            window.setNavigationBarColor(navy);
+            window.getDecorView().setSystemUiVisibility(0);
         }
         WebSettings s=web.getSettings(); s.setJavaScriptEnabled(true); s.setDomStorageEnabled(true);
         s.setAllowFileAccess(false); s.setAllowContentAccess(true); s.setAllowFileAccessFromFileURLs(false); s.setAllowUniversalAccessFromFileURLs(false);
