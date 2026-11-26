@@ -31,6 +31,7 @@ import java.nio.charset.StandardCharsets;
 
 public class MainActivity extends Activity {
     private WebView web;
+    private NativeWorkspace nativeWorkspace;
     private WebView printWeb;
     private ValueCallback<Uri[]> fileCallback;
     private String pendingBackup;
@@ -50,6 +51,9 @@ public class MainActivity extends Activity {
         web=new WebView(this);
         web.setBackgroundColor(Color.WHITE);
         root.addView(web,new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT,FrameLayout.LayoutParams.MATCH_PARENT));
+        nativeWorkspace=new NativeWorkspace(this,command->web.evaluateJavascript(command,null));
+        nativeWorkspace.setVisibility(View.GONE);
+        root.addView(nativeWorkspace,new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT,FrameLayout.LayoutParams.MATCH_PARENT));
         setContentView(root);
         if(android.os.Build.VERSION.SDK_INT>=30) {
             window.setDecorFitsSystemWindows(false);
@@ -67,6 +71,7 @@ public class MainActivity extends Activity {
                 android.graphics.Insets ime=insets.getInsets(WindowInsets.Type.ime());
                 v.setPadding(bars.left,bars.top,bars.right,Math.max(bars.bottom,ime.bottom));
                 if(web!=null)web.evaluateJavascript("document.documentElement.classList.toggle('keyboard-open',"+insets.isVisible(WindowInsets.Type.ime())+")",null);
+                if(nativeWorkspace!=null)nativeWorkspace.keyboardVisible(insets.isVisible(WindowInsets.Type.ime()));
                 return WindowInsets.CONSUMED;
             });
             root.requestApplyInsets();
@@ -189,7 +194,23 @@ public class MainActivity extends Activity {
         catch(Exception e){tell("Print service unavailable");}
     }
     @Override protected void onSaveInstanceState(Bundle state){super.onSaveInstanceState(state);state.putString("pendingPdf",pendingPdf);}
+    private void showWorkspace(String raw){
+        if(raw==null||raw.length()>8000000){nativeWorkspace.setVisibility(View.GONE);web.setVisibility(View.VISIBLE);return;}
+        try{
+            JSONObject data=new JSONObject(raw);
+            if(!nativeWorkspace.supports(data.optString("screen"))){nativeWorkspace.setVisibility(View.GONE);web.setVisibility(View.VISIBLE);return;}
+            if(nativeWorkspace.getVisibility()!=View.VISIBLE){
+                android.view.inputmethod.InputMethodManager input=(android.view.inputmethod.InputMethodManager)getSystemService(INPUT_METHOD_SERVICE);
+                if(input!=null)input.hideSoftInputFromWindow(web.getWindowToken(),0);
+                web.clearFocus();
+            }
+            nativeWorkspace.show(data);
+            web.setVisibility(View.INVISIBLE);
+            nativeWorkspace.setVisibility(View.VISIBLE);
+        }catch(Exception e){nativeWorkspace.setVisibility(View.GONE);web.setVisibility(View.VISIBLE);}
+    }
     private class Bridge {
+        @JavascriptInterface public void showNativeWorkspace(String raw){runOnUiThread(()->showWorkspace(raw));}
         @JavascriptInterface public void openDeveloperProfile(){runOnUiThread(()->{
             Intent intent=new Intent(Intent.ACTION_VIEW,Uri.parse("https://www.instagram.com/ravivadhiya_07?cnvx=MXc4djRqZmxlb2R3OQ=="));
             intent.addCategory(Intent.CATEGORY_BROWSABLE);
