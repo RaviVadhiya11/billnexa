@@ -118,7 +118,7 @@ final class InvoicePdf {
             Path path=new Path();float px=0,py=0;
             for(int n=0;n<stroke.length();n++){
                 JSONArray point=stroke.getJSONArray(n);double x=point.getDouble(0),yy=point.getDouble(1);
-                if(point.length()!=2||!Double.isFinite(x)||!Double.isFinite(yy)||x<0||x>600||yy<0||yy>200)throw new IllegalArgumentException("Invalid signature point");
+                if(point.length()!=2||Double.isNaN(x)||Double.isInfinite(x)||Double.isNaN(yy)||Double.isInfinite(yy)||x<0||x>600||yy<0||yy>200)throw new IllegalArgumentException("Invalid signature point");
                 px=(float)x;py=(float)yy;if(n==0)path.moveTo(px,py);else path.lineTo(px,py);
             }
             if(stroke.length()==1)path.lineTo(px+0.01f,py);
