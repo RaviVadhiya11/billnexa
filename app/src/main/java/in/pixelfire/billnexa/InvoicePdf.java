@@ -108,6 +108,29 @@ final class InvoicePdf {
         if(total){rect(x,y,W-M,y+h,Color.rgb(255,237,215));rect(x,y,x+4,y+h,SAFFRON);}
         drawLayout(a,x+6,y+6);drawLayout(b,W-M-163,y+6);y+=h;
     }
+    private void drawSignature(JSONArray strokes) throws Exception {
+        if(strokes==null||strokes.length()==0)return;
+        if(strokes.length()>80)throw new IllegalArgumentException("Too many signature strokes");
+        ArrayList<Path> paths=new ArrayList<>();int points=0;
+        for(int s=0;s<strokes.length();s++){
+            JSONArray stroke=strokes.getJSONArray(s);if(stroke.length()==0)throw new IllegalArgumentException("Empty stroke");
+            points+=stroke.length();if(points>1600)throw new IllegalArgumentException("Signature too large");
+            Path path=new Path();float px=0,py=0;
+            for(int n=0;n<stroke.length();n++){
+                JSONArray point=stroke.getJSONArray(n);double x=point.getDouble(0),yy=point.getDouble(1);
+                if(point.length()!=2||!Double.isFinite(x)||!Double.isFinite(yy)||x<0||x>600||yy<0||yy>200)throw new IllegalArgumentException("Invalid signature point");
+                px=(float)x;py=(float)yy;if(n==0)path.moveTo(px,py);else path.lineTo(px,py);
+            }
+            if(stroke.length()==1)path.lineTo(px+0.01f,py);
+            paths.add(path);
+        }
+        ensure(90);
+        if(canvas!=null){
+            Paint pen=new Paint(Paint.ANTI_ALIAS_FLAG);pen.setColor(Color.rgb(21,45,85));pen.setStyle(Paint.Style.STROKE);pen.setStrokeWidth(4.5f);pen.setStrokeCap(Paint.Cap.ROUND);pen.setStrokeJoin(Paint.Join.ROUND);
+            canvas.save();canvas.translate(M,y);canvas.scale(0.30f,0.30f);for(Path path:paths)canvas.drawPath(path,pen);canvas.restore();
+        }
+        y+=65;
+    }
     private void draw() throws Exception {
         start();
         paragraph(invoice.optString("business"),23,true,BLUE);info(invoice.optJSONArray("businessInfo"));ensure(12);rect(M,y,W-M,y+1,LINE);y+=9;
@@ -121,7 +144,9 @@ final class InvoicePdf {
         JSONArray sums=invoice.getJSONArray("summary");for(int n=0;n<sums.length();n++){JSONArray entry=sums.getJSONArray(n);summary(entry.optString(0),entry.optString(1));}
         JSONArray pay=invoice.optJSONArray("paymentInfo");if(pay!=null&&pay.length()>0){heading("PAYMENT DETAILS");info(pay);}
         if(!invoice.optString("notes").isEmpty()){heading("NOTES / TERMS");paragraph(invoice.optString("notes"),10,false,INK);}
-        ensure(60);y+=12;rect(M,y,W-M,y+1,LINE);y+=10;paragraph("Thank you for your business.",10,true,BLUE);paragraph("Authorised signatory",10,true,INK);paragraph(invoice.optString("business"),10,false,MUTED);
+        ensure(60);y+=12;rect(M,y,W-M,y+1,LINE);y+=10;paragraph("Thank you for your business.",10,true,BLUE);
+        drawSignature(invoice.optJSONArray("signature"));
+        paragraph("Authorised signatory",10,true,INK);paragraph(invoice.optString("business"),10,false,MUTED);
         finish();
     }
 }
