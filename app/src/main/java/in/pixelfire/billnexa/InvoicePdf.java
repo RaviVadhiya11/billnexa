@@ -12,7 +12,7 @@ import java.util.ArrayList;
 
 final class InvoicePdf {
     static final int W=595,H=842,M=34, END=793;
-    static final int INK=Color.rgb(23,36,59), BLUE=Color.rgb(36,93,229), MUTED=Color.rgb(91,107,128), LINE=Color.rgb(219,227,238);
+    static final int INK=Color.rgb(52,37,24), BLUE=Color.rgb(154,52,18), MUTED=Color.rgb(98,84,73), LINE=Color.rgb(241,213,181), SAFFRON=Color.rgb(255,153,51), DEEP=Color.rgb(180,83,9), CREAM=Color.rgb(255,245,233);
     static final int[] WIDTHS={181,64,73,49,47,113};
     private final JSONObject invoice;
     private final PdfDocument doc;
@@ -45,9 +45,12 @@ final class InvoicePdf {
     private void label(String t,int x,int top,int width,float size,boolean bold,int color,boolean right){drawLayout(layout(t,width,size,bold,color,right?Layout.Alignment.ALIGN_OPPOSITE:Layout.Alignment.ALIGN_NORMAL),x,top);}
     private void start(){
         finish();pageNo++;if(doc!=null&&selected(pageNo-1)){page=doc.startPage(new PdfDocument.PageInfo.Builder(W,H,pageNo).create());canvas=page.getCanvas();}
-        y=36;rect(M,y,W-M,y+5,BLUE);y+=15;
-        label("BILLNEXA  /  "+invoice.optString("title","INVOICE"),M,y,W-2*M,11,true,BLUE,false);y+=20;
-        label("Invoice "+invoice.optString("number")+"  ·  Page "+pageNo,M,y,W-2*M,10,false,MUTED,false);y+=23;
+        y=30;rect(M,y,W-M,y+5,SAFFRON);y+=12;
+        rect(M,y,W-M,y+49,CREAM);
+        label("BILLNEXA  /  BUSINESS INVOICE",M+12,y+8,235,9,true,BLUE,false);
+        label(invoice.optString("title","INVOICE"),W-M-250,y+7,238,13,true,BLUE,true);
+        label("No. "+invoice.optString("number")+"  ·  Page "+pageNo,M+12,y+28,W-2*M-24,10,false,MUTED,false);
+        y+=62;
     }
     private void finish(){
         if(canvas!=null){rect(M,810,W-M,811,LINE);label("Generated with BillNexa",M,818,260,8,false,MUTED,false);label("Page "+pageNo,W-M-100,818,100,8,false,MUTED,true);doc.finishPage(page);}
@@ -71,7 +74,7 @@ final class InvoicePdf {
     private void heading(String title){ensure(24);y+=5;paragraph(title,11,true,BLUE);}
     private void header(){
         String[] cols={"Product / service","Qty","Rate","Disc.","GST","Amount"};
-        rect(M,y,W-M,y+23,INK);int x=M;
+        rect(M,y,W-M,y+23,DEEP);int x=M;
         for(int n=0;n<cols.length;n++){label(cols[n],x+5,y+6,WIDTHS[n]-10,9,true,Color.WHITE,n>0);x+=WIDTHS[n];}
         y+=23;
     }
@@ -79,9 +82,9 @@ final class InvoicePdf {
         StaticLayout[] cells=new StaticLayout[6];int maxLines=1;
         for(int n=0;n<6;n++){cells[n]=layout(values.optString(n),WIDTHS[n]-10,9,n==0,INK,n==0?Layout.Alignment.ALIGN_NORMAL:Layout.Alignment.ALIGN_OPPOSITE);maxLines=Math.max(maxLines,cells[n].getLineCount());}
         int line=0;while(line<maxLines){
-            ensure(19);
+            ensure(21);
             int maxChunk=Math.max(1,(END-y-8)/13),take=Math.min(maxChunk,maxLines-line),height=take*13+8;
-            if(index%2==0)rect(M,y,W-M,y+height,Color.rgb(246,249,253));
+            if(index%2==0)rect(M,y,W-M,y+height,Color.rgb(255,248,239));
             int x=M;for(int n=0;n<6;n++){
                 StaticLayout l=cells[n];
                 if(line<l.getLineCount()&&canvas!=null){
@@ -97,19 +100,20 @@ final class InvoicePdf {
         }
     }
     private void summary(String key,String value){
-        StaticLayout a=layout(key,200,11,true,INK,Layout.Alignment.ALIGN_NORMAL);
-        StaticLayout b=layout(value,157,11,true,INK,Layout.Alignment.ALIGN_OPPOSITE);
+        boolean total=key.equals("Grand total");
+        StaticLayout a=layout(key,200,total?14:11,true,total?BLUE:INK,Layout.Alignment.ALIGN_NORMAL);
+        StaticLayout b=layout(value,157,total?14:11,true,total?BLUE:INK,Layout.Alignment.ALIGN_OPPOSITE);
         int h=Math.max(a.getHeight(),b.getHeight())+12;ensure(h);
-        int x=W-M-370;boolean total=key.equals("Grand total");
-        if(total)rect(x,y,W-M,y+h,Color.rgb(229,238,255));
+        int x=W-M-370;
+        if(total){rect(x,y,W-M,y+h,Color.rgb(255,237,215));rect(x,y,x+4,y+h,SAFFRON);}
         drawLayout(a,x+6,y+6);drawLayout(b,W-M-163,y+6);y+=h;
     }
     private void draw() throws Exception {
         start();
-        paragraph(invoice.optString("business"),22,true,INK);info(invoice.optJSONArray("businessInfo"));
+        paragraph(invoice.optString("business"),23,true,BLUE);info(invoice.optJSONArray("businessInfo"));ensure(12);rect(M,y,W-M,y+1,LINE);y+=9;
         heading("BILL TO");paragraph(invoice.optString("customer"),15,true,INK);info(invoice.optJSONArray("customerInfo"));
         paragraph("Date: "+invoice.optString("date")+(invoice.optString("dueDate").isEmpty()?"":"   |   Due: "+invoice.optString("dueDate")),10,false,INK);
-        paragraph("Payment: "+invoice.optString("payment"),10,false,INK);y+=8;
+        ensure(30);rect(M,y,W-M,y+27,CREAM);label("PAYMENT  ·  "+invoice.optString("payment"),M+8,y+8,W-2*M-16,10,true,BLUE,false);y+=35;
         ensure(45);table=true;header();
         JSONArray rows=invoice.getJSONArray("rows");if(rows.length()>1000)throw new IllegalArgumentException("Maximum 1000 items per PDF");
         for(int n=0;n<rows.length();n++)row(rows.getJSONArray(n),n);
@@ -117,7 +121,7 @@ final class InvoicePdf {
         JSONArray sums=invoice.getJSONArray("summary");for(int n=0;n<sums.length();n++){JSONArray entry=sums.getJSONArray(n);summary(entry.optString(0),entry.optString(1));}
         JSONArray pay=invoice.optJSONArray("paymentInfo");if(pay!=null&&pay.length()>0){heading("PAYMENT DETAILS");info(pay);}
         if(!invoice.optString("notes").isEmpty()){heading("NOTES / TERMS");paragraph(invoice.optString("notes"),10,false,INK);}
-        ensure(45);y+=14;paragraph("Authorised signatory",10,true,INK);paragraph(invoice.optString("business"),10,false,MUTED);
+        ensure(60);y+=12;rect(M,y,W-M,y+1,LINE);y+=10;paragraph("Thank you for your business.",10,true,BLUE);paragraph("Authorised signatory",10,true,INK);paragraph(invoice.optString("business"),10,false,MUTED);
         finish();
     }
 }

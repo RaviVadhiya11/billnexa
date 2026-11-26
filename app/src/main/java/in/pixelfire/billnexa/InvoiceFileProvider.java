@@ -13,7 +13,7 @@ public class InvoiceFileProvider extends ContentProvider {
     @Override public boolean onCreate(){return true;}
     private File file(Uri uri) throws FileNotFoundException {
         List<String> parts=uri.getPathSegments();
-        if(parts.size()!=2||!parts.get(0).matches("[a-f0-9-]{36}")||!parts.get(1).matches("[A-Za-z0-9_.-]{1,100}\\.pdf"))throw new FileNotFoundException("Invalid PDF");
+        if(parts.size()!=2||!parts.get(0).matches("[a-f0-9-]{36}")||!parts.get(1).matches("[A-Za-z0-9_.-]{1,110}\\.(pdf|jpg)"))throw new FileNotFoundException("Invalid PDF");
         try{
             File root=new File(getContext().getCacheDir(),"invoice-share").getCanonicalFile();
             File f=new File(new File(root,parts.get(0)),parts.get(1)).getCanonicalFile();
@@ -21,7 +21,7 @@ public class InvoiceFileProvider extends ContentProvider {
             return f;
         }catch(IOException e){throw new FileNotFoundException("PDF unavailable");}
     }
-    @Override public String getType(Uri uri){return "application/pdf";}
+    @Override public String getType(Uri uri){return uri.getLastPathSegment()!=null&&uri.getLastPathSegment().endsWith(".jpg")?"image/jpeg":"application/pdf";}
     @Override public ParcelFileDescriptor openFile(Uri uri,String mode) throws FileNotFoundException {
         if(!"r".equals(mode))throw new FileNotFoundException("Read only");
         return ParcelFileDescriptor.open(file(uri),ParcelFileDescriptor.MODE_READ_ONLY);

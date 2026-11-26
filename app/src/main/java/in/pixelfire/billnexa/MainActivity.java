@@ -1,6 +1,10 @@
 package in.pixelfire.billnexa;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.graphics.Bitmap;
+import android.graphics.Color;
+import android.graphics.pdf.PdfRenderer;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -75,6 +79,7 @@ public class MainActivity extends Activity {
     }
     private void handlePdf(String json,String action){
         if(json==null||json.length()>1000000){tell("Invoice too large");return;}
+        if("saveJpg".equals(action)||"shareJpg".equals(action)){handleJpg(json,action);return;}
         if(!"save".equals(action)&&!"share".equals(action)&&!"print".equals(action))return;
         pdfWorker.execute(()->{try{
             JSONObject data=new JSONObject(json);
@@ -93,6 +98,49 @@ public class MainActivity extends Activity {
                 }
             }catch(Exception e){tell("Unable to open PDF action");}});
         }catch(Exception e){runOnUiThread(()->tell("Could not generate PDF"));}});
+    }
+    private void handleJpg(String json,String action){
+        tell("Preparing HD invoice image...");
+        pdfWorker.execute(()->{try{
+            File source=makePdf(new JSONObject(json));
+            int count;
+            try(ParcelFileDescriptor fd=ParcelFileDescriptor.open(source,ParcelFileDescriptor.MODE_READ_ONLY);PdfRenderer renderer=new PdfRenderer(fd)){
+                count=renderer.getPageCount();
+            }
+            final int total=count;
+            runOnUiThread(()->{
+                if(total<=0){tell("No invoice pages");return;}
+                if(total==1){exportJpgPage(source,0,total,action);return;}
+                String[] labels=new String[total];for(int n=0;n<total;n++)labels[n]="Page "+(n+1)+" of "+total;
+                new AlertDialog.Builder(this).setTitle("Choose JPG page").setItems(labels,(dialog,which)->exportJpgPage(source,which,total,action)).setNegativeButton("Cancel",null).show();
+            });
+        }catch(Exception e){runOnUiThread(()->tell("Could not prepare invoice image"));}});
+    }
+    private void exportJpgPage(File source,int index,int total,String action){
+        pdfWorker.execute(()->{try{
+            String base=source.getName().substring(0,source.getName().length()-4);
+            File image=new File(source.getParentFile(),base+(total>1?"-page-"+(index+1):"")+".jpg");
+            try(ParcelFileDescriptor fd=ParcelFileDescriptor.open(source,ParcelFileDescriptor.MODE_READ_ONLY);PdfRenderer renderer=new PdfRenderer(fd)){
+                try(PdfRenderer.Page p=renderer.openPage(index)){
+                    Bitmap bitmap=Bitmap.createBitmap(2480,3508,Bitmap.Config.ARGB_8888);
+                    try{bitmap.eraseColor(Color.WHITE);p.render(bitmap,null,null,PdfRenderer.Page.RENDER_MODE_FOR_PRINT);
+                        try(FileOutputStream out=new FileOutputStream(image)){if(!bitmap.compress(Bitmap.CompressFormat.JPEG,98,out))throw new IOException("JPEG encoding failed");}
+                    }finally{bitmap.recycle();}
+                }
+            }
+            runOnUiThread(()->{try{
+                if("saveJpg".equals(action)){
+                    if(pendingPdf!=null){tell("Finish the current file save first");return;}
+                    pendingPdf=image.getAbsolutePath();
+                    Intent i=new Intent(Intent.ACTION_CREATE_DOCUMENT);i.setType("image/jpeg");i.addCategory(Intent.CATEGORY_OPENABLE);i.putExtra(Intent.EXTRA_TITLE,image.getName());
+                    try{startActivityForResult(i,SAVE_PDF);}catch(Exception e){pendingPdf=null;throw e;}
+                }else{
+                    Uri uri=new Uri.Builder().scheme("content").authority(getPackageName()+".invoicefiles").appendPath(image.getParentFile().getName()).appendPath(image.getName()).build();
+                    Intent i=new Intent(Intent.ACTION_SEND);i.setType("image/jpeg");i.putExtra(Intent.EXTRA_STREAM,uri);i.setClipData(ClipData.newRawUri(image.getName(),uri));i.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                    startActivity(Intent.createChooser(i,"Share invoice JPG"));
+                }
+            }catch(Exception e){tell("Unable to open JPG action");}});
+        }catch(Exception|OutOfMemoryError e){runOnUiThread(()->tell("Could not generate HD JPG"));}});
     }
     private void printPdf(JSONObject data,int pages){
         PrintManager pm=(PrintManager)getSystemService(PRINT_SERVICE);
@@ -136,8 +184,8 @@ public class MainActivity extends Activity {
             Uri target=data.getData();pdfWorker.execute(()->{
                 try(InputStream in=new FileInputStream(path);OutputStream out=getContentResolver().openOutputStream(target,"wt")){
                     if(out==null)throw new IOException("Cannot open output");byte[] buffer=new byte[16384];int n;while((n=in.read(buffer))!=-1)out.write(buffer,0,n);
-                    runOnUiThread(()->tell("Invoice PDF saved"));
-                }catch(Exception e){runOnUiThread(()->tell("PDF save failed"));}
+                    runOnUiThread(()->tell(path.endsWith(".jpg")?"Invoice JPG saved":"Invoice PDF saved"));
+                }catch(Exception e){runOnUiThread(()->tell("Invoice file save failed"));}
             });
         }
         return;
