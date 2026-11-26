@@ -1,0 +1,41 @@
+BillNexa · PixelFire Studio
+
+Terms of Use
+
+Updated 26 November 2026
+
+Using BillNexa
+
+BillNexa is an offline business productivity application for creating invoices, quotations, product records and sales summaries. It is provided by Ravi Vadhiya (PixelFire Studio). By using the app you agree to use it lawfully and only with information you are authorized to process.
+
+Accuracy and tax obligations
+
+You are responsible for checking prices, quantities, discounts, GST rates, GSTIN, place of supply, invoice numbers, tax treatment and other legally required information before issuing documents. BillNexa is not a tax, accounting or legal adviser and is not connected to the GST portal or e-invoicing system. A generated invoice is not a guarantee of legal or tax compliance.
+
+Your business data
+
+You retain ownership of your business records. You are responsible for having a lawful basis to store and share customer information, protecting your device, checking recipient details and maintaining secure backups. Deleting app data or uninstalling the app may permanently remove local records.
+
+Inventory and reports
+
+Stock and reports are based on the information you enter. Stock tracking is optional and only applies to linked products in relevant invoices. Quotations are estimates, not tax invoices. Sales reports are not audited accounts or statutory tax returns.
+
+Exports and third-party services
+
+PDF, JPG, backup, printing and sharing depend on device capabilities and the Android services or apps you select. BillNexa does not process payments, handle bank funds or verify payment receipt. Review exported documents before sharing. Handwritten signature appearances are not certificate-based digital signatures, identity verification or tamper-proof authentication. Only sign or apply signatures when authorized.
+
+Availability and updates
+
+Features may change to improve stability, security or compatibility. No uninterrupted or error-free operation is guaranteed. The current version has no paid subscription or in-app payment service.
+
+Responsibility and rights
+
+To the extent permitted by applicable law, the developer is not responsible for losses arising from incorrect input, misuse, lost backups or third-party services. Nothing in these terms limits rights or remedies that cannot legally be excluded. If you disagree with the terms, discontinue use.
+
+Support and changes
+
+Questions or issues may be sent to business@pixelfirestudio.in. Material changes to these terms will be reflected in the updated app and policy pages.
+
+Privacy Policy · Terms of Use · Help & Support
+
+Development by Ravi Vadhiya

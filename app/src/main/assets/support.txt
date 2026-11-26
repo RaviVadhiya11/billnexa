@@ -1,0 +1,43 @@
+BillNexa · PixelFire Studio
+
+Help & Support
+
+Updated 26 November 2026
+
+Contact: business@pixelfirestudio.in
+
+How do I create a bill?
+
+Open Home, choose Create Invoice or Product Bill Studio, select a customer, add items, choose the tax type and save the bill.
+
+How do I add my company name or GSTIN?
+
+Open More → Business profile or the Shop / Business details section in a bill editor. Enter the actual shop name, optional logo and business details. Save your profile for future bills.
+
+How do I export or print an invoice?
+
+Open a saved bill and choose Download PDF, Share PDF, Save JPG, Share JPG or Print A4. For multi-page JPG exports, choose the page you need.
+
+How does inventory work?
+
+Open Inventory & stock, select a product, set the physical quantity and low-stock warning. New catalogue-linked bills adjust tracked stock; quotations do not deduct stock.
+
+How do I back up or restore data?
+
+Open More → Backup & restore. Export a JSON backup and store it securely. Restore replaces existing data, so export a backup first.
+
+Does BillNexa work offline?
+
+Yes. Billing, reports, PDF and JPG generation run locally. Sharing or printing through another app may require connectivity.
+
+How do I delete my data?
+
+Open More → Privacy & data controls and select Delete all local data. This cannot be undone. Exported copies must be removed separately.
+
+How do I sign an invoice?
+
+Open a saved bill, tap Add signature, draw your signature and save. Save a reusable signature in More → Saved signature and apply it to individual bills. It appears in PDF, JPG and print. Editing a bill or recording payment removes its signature, so sign again afterwards.
+
+Privacy Policy · Terms of Use · Help & Support
+
+Development by Ravi Vadhiya

@@ -1,0 +1,37 @@
+BillNexa · PixelFire Studio
+
+Privacy Policy
+
+Updated 26 November 2026
+
+Developer and scope
+
+BillNexa is an offline invoice and billing application developed by Ravi Vadhiya (PixelFire Studio). This policy describes the Android app as distributed in version 3.0.
+
+Information stored on your device
+
+You may enter business and customer names, addresses, contact details, GSTIN, product, inventory, quotation and invoice details, bank/UPI payment instructions, payment amounts and notes. These are used to create and manage invoices and are stored locally in the app using an Android-private, atomic JSON file. Existing app records are imported once from the previous version's local storage; the legacy copy stays on-device until app data is cleared. Optional shop logo images are resized and stored locally in the business profile or saved bill and included in relevant exports and backups. Handwritten signature strokes may be saved locally, attached to a selected bill and included in exported files and backups. Only use signatures you are authorized to use. Removing a saved signature does not remove signatures already attached to other bills or exported copies. The app does not require an account, include advertising or analytics SDKs, or send these records to a developer server.
+
+Exports, sharing and printing
+
+PDF, JPG and JSON backups are generated locally. When you explicitly save, print or share a file, it is handled by the selected Android service or recipient app, whose own privacy practices apply. Temporary export files are stored in the app cache; older export folders are cleaned during subsequent exports. Exported files and backups outside the app remain until you remove them. If you tap the developer name in the footer, Android opens the developer's Instagram profile in an external app or browser. Instagram's own privacy policy applies; BillNexa does not attach billing records to this link.
+
+Retention and deletion
+
+Records remain on your device until you delete them or clear app data. You can delete individual records or use More → Privacy & data controls → Delete all local data. Uninstalling or clearing storage also removes app-private data. Externally saved or shared copies must be deleted separately.
+
+Security
+
+App-private storage and read-only, temporary file-sharing permissions protect records from ordinary access by other apps. Records are not separately encrypted by BillNexa. Protect your device, choose trusted recipients and store backups securely.
+
+Children and payments
+
+BillNexa is a business productivity tool, not directed to children. It records payment information entered by users; it does not process payments, access bank accounts or provide lending services.
+
+Contact and updates
+
+For privacy questions, contact business@pixelfirestudio.in. If you choose to email support, the information you voluntarily send is received by the developer and used to respond to your request. Do not send customer records or sensitive financial details unless necessary. If the app's data practices change, the policy and Play Data safety disclosures should be updated before distribution.
+
+Privacy Policy · Terms of Use · Help & Support
+
+Development by Ravi Vadhiya

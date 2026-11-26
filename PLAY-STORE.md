@@ -1,4 +1,4 @@
-# Google Play submission checklist — BillNexa v2.2
+# Google Play submission checklist — BillNexa v3.0
 
 ## Suggested listing
 Name: BillNexa: GST Invoice Maker
@@ -20,7 +20,7 @@ BillNexa is an offline billing and invoice studio for shops, small businesses an
 - Content rating, target audience and declarations: complete the Play Console questionnaires honestly.
 - App icon: upload a 512×512 Play listing icon; in-app adaptive launcher icon is separate.
 - Feature graphic: 1024×500. Upload real app screenshots (no customer personal information).
-- Signed AAB: version code 13, target API 36; upload-key signing required.
+- Signed AAB: version code 14, target API 36; upload-key signing required.
 - Test: invoice totals, GST modes, old database upgrade, product search/add, PDF and JPG output, long invoices, file sharing, print, backup/restore, local deletion, handwritten signature drawing and export, Android 16 layout and keyboard behavior.
 - Verify Play pre-launch report and fix issues. If the account is subject to new personal-account testing requirements, complete the required closed test before applying for production access.
 - No approval or successful production release is guaranteed.
@@ -30,3 +30,5 @@ https://support.google.com/googleplay/android-developer/answer/11926878
 https://support.google.com/googleplay/android-developer/answer/9859455
 https://support.google.com/googleplay/android-developer/answer/10787469
 https://support.google.com/googleplay/android-developer/answer/14151465
+
+Native v3.0: test upgrade from v2.1/v2.2 using populated business records, signature, logo, inventory and quotes. Verify fresh install, backup restore, native forms, file chooser, status bar and Android 16 pre-launch report.

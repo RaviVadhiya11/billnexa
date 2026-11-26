@@ -1,4 +1,4 @@
-# BillNexa — Offline billing studio v2.2
+# BillNexa — Offline billing studio v3.0
 
 Package: `in.pixelfire.billnexa`. Android 16 target (API 36), minimum API 23. JDK 17, Gradle 8.11.1, Android Gradle Plugin 8.10.1. No account, analytics, ad SDK or Internet permission. Native PDF/JPG output, offline catalogue, invoices and backups.
 
@@ -29,5 +29,5 @@ Save an optional reusable handwritten signature under Settings; apply explicitly
 ## Shop branding
 Enter a shop name in the bill editor or use a saved business profile. Optional JPG/PNG/WebP logo is resized locally and copied to each saved bill. Normal non-GST bills omit the invoice title; GST and quotation document labels remain. Older bills are not silently modified.
 
-## Native workspace (phase 1)
-Home dashboard, invoice history, customer ledger and settings hub are Android View screens, with native search/filter controls and navigation. The existing WebView remains the local data source and editor for invoices, products, customers and advanced tools. Native views consume a read-only projection of the existing data. Existing localStorage origin and schema are unchanged. PDF/JPG exports remain native. This is a staged hybrid migration, not a fully native rewrite. No new external dependencies or permissions.
+## Native Android architecture
+All user-facing screens use Android Java Views. NativeStore uses AtomicFile, validates backups and performs stock transactions on a copy before committing. Existing HTML is retained only as an archived reference; a hidden one-time WebView migration reads the previous localStorage origin on first launch. If migration fails, recovery allows retry or explicit backup restore. Native PDF/JPG/print engine and file provider are retained. This is not a cloud database; exports remain local. Device migration and full feature QA are required before release.

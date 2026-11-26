@@ -17,7 +17,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Locale;
 
-/** Native Android workspace. The existing billing editor remains the authoritative store. */
+/** Native Android workspace. All data is supplied by the native local store. */
 final class NativeWorkspace extends LinearLayout {
     interface Actions { void run(String command); }
     private static final int NAVY=0xff07162e, GOLD=0xfff5c65e, INK=0xff10223e, MUTED=0xff53627a, BG=0xffeef1f6, WHITE=Color.WHITE, BORDER=0xffdfe5ee;
@@ -64,7 +64,7 @@ final class NativeWorkspace extends LinearLayout {
     void show(JSONObject snapshot){
         data=snapshot;String next=snapshot.optString("screen");
         if(!next.equals(screen)){query="";filter="all";sort="recent";limit=40;}
-        screen=next;removeAllViews();
+        screen=next;results=null;removeAllViews();
         LinearLayout header=row();pad(header,12);header.setBackgroundColor(NAVY);
         ImageView logo=new ImageView(activity);logo.setImageResource(R.drawable.billnexa_logo);logo.setScaleType(ImageView.ScaleType.FIT_CENTER);header.addView(logo,new LayoutParams(dp(48),dp(48)));gap(header,8);
         LinearLayout brand=col();add(brand,text("BILLNEXA",22,GOLD,true));add(brand,text("PREMIUM BUSINESS BILLING",9,0xfff7e0a6,true));weight(header,brand);
@@ -120,7 +120,7 @@ final class NativeWorkspace extends LinearLayout {
     private void addArrow(LinearLayout r){TextView t=text("›",25,0xff956315,true);r.addView(t,new LayoutParams(dp(22),LayoutParams.WRAP_CONTENT));}
     private void settings(){
         heading(body,"Settings","Manage your business, privacy and app preferences.");
-        LinearLayout c=card(body);surface(c,0xff17365c,16,0);add(c,text(data.optString("business").isEmpty()?"Your business":data.optString("business"),21,WHITE,true));gap(c,5);add(c,text("BillNexa · Version 2.2",13,GOLD,false));
+        LinearLayout c=card(body);surface(c,0xff17365c,16,0);add(c,text(data.optString("business").isEmpty()?"Your business":data.optString("business"),21,WHITE,true));gap(c,5);add(c,text("BillNexa · Version 3.0",13,GOLD,false));
         settingsGroup("Business",new String[][]{{"Business profile","Shop name, logo and GSTIN","profile"},{"Saved signature","Manage handwritten signature","signature"},{"Inventory & stock","Product quantities","inventory"},{"Sales reports","Business performance","reports"},{"Quotations","Create estimates","quotes"},{"Customer ledger","Outstanding balances","ledger"}});
         settingsGroup("Data & security",new String[][]{{"Backup & restore","Export and import local records","backupsettings"},{"Privacy & data controls","Manage or delete local data","datacontrols"}});
         settingsGroup("Legal & support",new String[][]{{"Privacy Policy","How information is handled","privacy"},{"Terms of Use","Usage rules","terms"},{"Help & FAQ","Common questions","help"},{"Contact Support","Email the developer","support"},{"About BillNexa","App information","about"}});
