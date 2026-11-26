@@ -1,4 +1,4 @@
-# BillNexa — Offline billing studio v1.4
+# BillNexa — Offline billing studio v1.6
 
 Package: `in.pixelfire.billnexa`. Android 16 target (API 36), minimum API 23. JDK 17, Gradle 8.11.1, Android Gradle Plugin 8.10.1. No account, analytics, ad SDK or Internet permission. Native PDF/JPG output, offline catalogue, invoices and backups.
 
@@ -19,3 +19,6 @@ Privacy policy is included in the app (More → Privacy policy) and in docs/priv
 See PLAY-STORE.md. Test real devices and the Play internal/closed track. Verify GST requirements independently. The app does not process payments or integrate with GST/e-invoicing services.
 
 Development by Ravi Vadhiya
+
+## Business Suite
+Inventory is opt-in per product. Catalogue-linked invoices adjust tracked quantities; edits and deletion reverse recorded stock moves. Existing invoices are not deducted retroactively. Quotations are excluded from sales and inventory. Reports use invoice dates and cumulative received amounts, not cash-flow dates. Customer ledger groups by invoice contact name, phone and GSTIN.
