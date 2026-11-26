@@ -27,9 +27,10 @@ final class InvoicePdf {
         InvoicePdf r=new InvoicePdf(data,null,null);r.draw();return r.pageNo;
     }
     static int write(JSONObject data,OutputStream stream,PageRange[] pages) throws Exception {
-        try(PdfDocument pdf=new PdfDocument()){
-            InvoicePdf r=new InvoicePdf(data,pdf,pages);r.draw();pdf.writeTo(stream);return r.pageNo;
-        }
+        PdfDocument pdf=new PdfDocument();
+        InvoicePdf r=new InvoicePdf(data,pdf,pages);
+        try {r.draw();pdf.writeTo(stream);return r.pageNo;}
+        finally {try{r.finish();}finally{pdf.close();}}
     }
     private boolean selected(int index){if(ranges==null)return true;for(PageRange r:ranges)if(index>=r.getStart()&&index<=r.getEnd())return true;return false;}
     private TextPaint font(float size,boolean bold,int color){
