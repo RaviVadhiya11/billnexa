@@ -1,4 +1,4 @@
-# BillNexa — Offline billing studio v2.0
+# BillNexa — Offline billing studio v2.1
 
 Package: `in.pixelfire.billnexa`. Android 16 target (API 36), minimum API 23. JDK 17, Gradle 8.11.1, Android Gradle Plugin 8.10.1. No account, analytics, ad SDK or Internet permission. Native PDF/JPG output, offline catalogue, invoices and backups.
 
@@ -25,3 +25,6 @@ Inventory is opt-in per product. Catalogue-linked invoices adjust tracked quanti
 
 ## Handwritten signatures
 Save an optional reusable handwritten signature under Settings; apply explicitly to a saved bill. Per-bill strokes are included in native PDF/JPG/print and backups. Editing, duplication or recording payment does not silently reuse the old signature. No DSC or cryptographic PDF signing.
+
+## Shop branding
+Enter a shop name in the bill editor or use a saved business profile. Optional JPG/PNG/WebP logo is resized locally and copied to each saved bill. Normal non-GST bills omit the invoice title; GST and quotation document labels remain. Older bills are not silently modified.

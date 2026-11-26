@@ -47,9 +47,9 @@ final class InvoicePdf {
         finish();pageNo++;if(doc!=null&&selected(pageNo-1)){page=doc.startPage(new PdfDocument.PageInfo.Builder(W,H,pageNo).create());canvas=page.getCanvas();}
         y=30;rect(M,y,W-M,y+5,SAFFRON);y+=12;
         rect(M,y,W-M,y+49,CREAM);
-        label("BILLNEXA  /  BUSINESS INVOICE",M+12,y+8,235,9,true,BLUE,false);
-        label(invoice.optString("title","INVOICE"),W-M-250,y+7,238,13,true,BLUE,true);
-        label("No. "+invoice.optString("number")+"  ·  Page "+pageNo,M+12,y+28,W-2*M-24,10,false,MUTED,false);
+        String title=invoice.optString("title","");
+        if(!title.isEmpty())label(title,W-M-250,y+7,238,13,true,BLUE,true);
+        label("No. "+invoice.optString("number")+"  ·  Page "+pageNo,M+12,y+(title.isEmpty()?17:28),W-2*M-24,10,false,MUTED,false);
         y+=62;
     }
     private void finish(){
@@ -131,9 +131,27 @@ final class InvoicePdf {
         }
         y+=65;
     }
+    private void drawShopLogo() {
+        String logo=invoice.optString("logo","");
+        String prefix="data:image/jpeg;base64,";
+        if(!logo.startsWith(prefix)||logo.length()>36000)return;
+        Bitmap bitmap=null;
+        try{
+            byte[] bytes=android.util.Base64.decode(logo.substring(prefix.length()),android.util.Base64.DEFAULT);
+            BitmapFactory.Options bounds=new BitmapFactory.Options();bounds.inJustDecodeBounds=true;BitmapFactory.decodeByteArray(bytes,0,bytes.length,bounds);
+            if(bounds.outWidth<=0||bounds.outHeight<=0||bounds.outWidth>256||bounds.outHeight>256)return;
+            bitmap=BitmapFactory.decodeByteArray(bytes,0,bytes.length);
+            if(bitmap==null)return;
+            float scale=Math.min(105f/bitmap.getWidth(),65f/bitmap.getHeight());
+            int height=Math.max(1,(int)Math.ceil(bitmap.getHeight()*scale));
+            ensure(height+8);
+            if(canvas!=null){Paint logoPaint=new Paint(Paint.ANTI_ALIAS_FLAG|Paint.FILTER_BITMAP_FLAG);canvas.drawBitmap(bitmap,null,new RectF(M,y,M+bitmap.getWidth()*scale,y+height),logoPaint);}
+            y+=height+8;
+        }catch(IllegalArgumentException ignored){}finally{if(bitmap!=null)bitmap.recycle();}
+    }
     private void draw() throws Exception {
         start();
-        paragraph(invoice.optString("business"),23,true,BLUE);info(invoice.optJSONArray("businessInfo"));ensure(12);rect(M,y,W-M,y+1,LINE);y+=9;
+        drawShopLogo();paragraph(invoice.optString("business"),23,true,BLUE);info(invoice.optJSONArray("businessInfo"));ensure(12);rect(M,y,W-M,y+1,LINE);y+=9;
         heading("BILL TO");paragraph(invoice.optString("customer"),15,true,INK);info(invoice.optJSONArray("customerInfo"));
         paragraph("Date: "+invoice.optString("date")+(invoice.optString("dueDate").isEmpty()?"":"   |   Due: "+invoice.optString("dueDate")),10,false,INK);
         ensure(30);rect(M,y,W-M,y+27,CREAM);label("PAYMENT  ·  "+invoice.optString("payment"),M+8,y+8,W-2*M-16,10,true,BLUE,false);y+=35;

@@ -88,7 +88,7 @@ public class MainActivity extends Activity {
         web.setWebChromeClient(new WebChromeClient(){
             @Override public boolean onShowFileChooser(WebView v, ValueCallback<Uri[]> callback, FileChooserParams params){
                 if(fileCallback!=null)fileCallback.onReceiveValue(null); fileCallback=callback;
-                Intent i=new Intent(Intent.ACTION_OPEN_DOCUMENT);i.setType("application/json");i.addCategory(Intent.CATEGORY_OPENABLE);
+                Intent i=new Intent(Intent.ACTION_OPEN_DOCUMENT);boolean image=false;for(String type:params.getAcceptTypes()){if(type!=null&&type.startsWith("image/")){image=true;break;}}i.setType(image?"image/*":"application/json");if(image)i.putExtra(Intent.EXTRA_MIME_TYPES,new String[]{"image/jpeg","image/png","image/webp"});i.addCategory(Intent.CATEGORY_OPENABLE);
                 try{startActivityForResult(i,PICK);return true;}catch(Exception e){fileCallback.onReceiveValue(null);fileCallback=null;return true;}
             }
         });
