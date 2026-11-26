@@ -1,4 +1,4 @@
-# BillNexa — Offline billing studio v1.8
+# BillNexa — Offline billing studio v1.9
 
 Package: `in.pixelfire.billnexa`. Android 16 target (API 36), minimum API 23. JDK 17, Gradle 8.11.1, Android Gradle Plugin 8.10.1. No account, analytics, ad SDK or Internet permission. Native PDF/JPG output, offline catalogue, invoices and backups.
 

@@ -190,6 +190,11 @@ public class MainActivity extends Activity {
     }
     @Override protected void onSaveInstanceState(Bundle state){super.onSaveInstanceState(state);state.putString("pendingPdf",pendingPdf);}
     private class Bridge {
+        @JavascriptInterface public void openDeveloperProfile(){runOnUiThread(()->{
+            Intent intent=new Intent(Intent.ACTION_VIEW,Uri.parse("https://www.instagram.com/ravivadhiya_07?cnvx=MXc4djRqZmxlb2R3OQ=="));
+            intent.addCategory(Intent.CATEGORY_BROWSABLE);
+            try{startActivity(intent);}catch(android.content.ActivityNotFoundException e){tell("No browser or Instagram app available.");}
+        });}
         @JavascriptInterface public void openSupport(){runOnUiThread(()->{
             Intent intent=new Intent(Intent.ACTION_SENDTO,Uri.parse("mailto:business@pixelfirestudio.in?subject=BillNexa%20Support"));
             try{startActivity(intent);}catch(android.content.ActivityNotFoundException e){tell("No email app available. Copy the support email instead.");}
