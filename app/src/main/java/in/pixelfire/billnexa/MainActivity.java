@@ -190,6 +190,14 @@ public class MainActivity extends Activity {
     }
     @Override protected void onSaveInstanceState(Bundle state){super.onSaveInstanceState(state);state.putString("pendingPdf",pendingPdf);}
     private class Bridge {
+        @JavascriptInterface public void openSupport(){runOnUiThread(()->{
+            Intent intent=new Intent(Intent.ACTION_SENDTO,Uri.parse("mailto:business@pixelfirestudio.in?subject=BillNexa%20Support"));
+            try{startActivity(intent);}catch(android.content.ActivityNotFoundException e){tell("No email app available. Copy the support email instead.");}
+        });}
+        @JavascriptInterface public void copySupportEmail(){runOnUiThread(()->{
+            android.content.ClipboardManager clipboard=(android.content.ClipboardManager)getSystemService(CLIPBOARD_SERVICE);
+            if(clipboard!=null){clipboard.setPrimaryClip(ClipData.newPlainText("BillNexa support","business@pixelfirestudio.in"));tell("Support email copied");}
+        });}
         @JavascriptInterface public void clearExportCache(){pdfWorker.execute(()->{
             File root=new File(getCacheDir(),"invoice-share");
             File[] folders=root.listFiles();

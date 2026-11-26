@@ -1,4 +1,4 @@
-# Google Play submission checklist — BillNexa v1.4
+# Google Play submission checklist — BillNexa v1.8
 
 ## Suggested listing
 Name: BillNexa: GST Invoice Maker
@@ -14,13 +14,13 @@ BillNexa is an offline billing and invoice studio for shops, small businesses an
 - Ads: No, current build has no advertising SDK.
 - App access: all functionality is available without sign-in.
 - Data safety: records are processed and stored on-device, no developer server or analytics. User-initiated exports/shares use chosen apps. Review Play's definitions and exclusions before declaring no collection/sharing.
-- Privacy policy: publish docs/privacy.html as a publicly accessible web page, verify URL and contact.
-- Account deletion: no accounts are created; local deletion is available under More.
+- Privacy policy: publish docs/privacy.html as a publicly accessible web page, verify URL and contact. Terms of Use and Help & Support are available in the app and in docs/terms.html and docs/support.html.
+- Account deletion: no accounts are created; local deletion is available under More → Privacy & data controls.
 - Financial features: declare applicable features accurately; this app records invoice/payment amounts but does not process payments, provide loans or hold funds.
 - Content rating, target audience and declarations: complete the Play Console questionnaires honestly.
 - App icon: upload a 512×512 Play listing icon; in-app adaptive launcher icon is separate.
 - Feature graphic: 1024×500. Upload real app screenshots (no customer personal information).
-- Signed AAB: version code 5, target API 36; upload-key signing required.
+- Signed AAB: version code 9, target API 36; upload-key signing required.
 - Test: invoice totals, GST modes, old database upgrade, product search/add, PDF and JPG output, long invoices, file sharing, print, backup/restore, local deletion, Android 16 layout and keyboard behavior.
 - Verify Play pre-launch report and fix issues. If the account is subject to new personal-account testing requirements, complete the required closed test before applying for production access.
 - No approval or successful production release is guaranteed.

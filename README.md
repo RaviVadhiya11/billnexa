@@ -1,4 +1,4 @@
-# BillNexa — Offline billing studio v1.6
+# BillNexa — Offline billing studio v1.8
 
 Package: `in.pixelfire.billnexa`. Android 16 target (API 36), minimum API 23. JDK 17, Gradle 8.11.1, Android Gradle Plugin 8.10.1. No account, analytics, ad SDK or Internet permission. Native PDF/JPG output, offline catalogue, invoices and backups.
 
@@ -13,7 +13,7 @@ For Play upload, generate a dedicated upload keystore locally, protect its backu
 Never commit passwords or keystore files. Run the workflow manually with signed_release enabled. Download BillNexa-signed-Play-AAB. Keep the same upload key for future versions and enroll in Play App Signing. Android Studio can also generate a signed release bundle locally.
 
 ## Privacy
-Privacy policy is included in the app (More → Privacy policy) and in docs/privacy.html. Enable GitHub Pages for main /docs (or host the document on your own domain). Verify the public non-PDF URL opens without login before using it in Play Console. Confirm the listed support email is active.
+Privacy policy is included in the app (More → Privacy policy) and in docs/privacy.html. Terms and support pages are in docs/terms.html and docs/support.html. Enable GitHub Pages for main /docs (or host the document on your own domain). Verify the public non-PDF URL opens without login before using it in Play Console. Confirm the listed support email is active.
 
 ## Before production
 See PLAY-STORE.md. Test real devices and the Play internal/closed track. Verify GST requirements independently. The app does not process payments or integrate with GST/e-invoicing services.
