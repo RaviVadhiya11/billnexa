@@ -25,7 +25,22 @@ jobs:
         run: |
           sdkmanager --version
           gradle --version
-      - run: gradle :app:assembleDebug --no-daemon
+      - name: Build debug APK with bounded network retry
+        shell: bash
+        run: |
+          set -o pipefail
+          for attempt in 1 2 3; do
+            if gradle :app:assembleDebug --no-daemon --max-workers=2 --stacktrace 2>&1 | tee "$RUNNER_TEMP/billnexa-build.log"; then
+              exit 0
+            fi
+            if ! grep -Eqi 'status code (429|502|503|504)|Too Many Requests|Read timed out|Connection reset' "$RUNNER_TEMP/billnexa-build.log"; then
+              exit 1
+            fi
+            if [ "$attempt" -lt 3 ]; then
+              sleep "$((attempt * 45))"
+            fi
+          done
+          exit 1
       - uses: actions/upload-artifact@v4
         with:
           name: BillNexa-debug-apk
