@@ -121,7 +121,7 @@ final class NativeWorkspace extends LinearLayout {
     private void settings(){
         heading(body,"Settings","Manage your business, privacy and app preferences.");
         LinearLayout c=card(body);surface(c,0xff17365c,16,0);add(c,text(data.optString("business").isEmpty()?"Your business":data.optString("business"),21,WHITE,true));gap(c,5);add(c,text("BillNexa · Version 3.0",13,GOLD,false));
-        settingsGroup("Business",new String[][]{{"Business profile","Shop name, logo and GSTIN","profile"},{"Saved signature","Manage handwritten signature","signature"},{"Inventory & stock","Product quantities","inventory"},{"Sales reports","Business performance","reports"},{"Quotations","Create estimates","quotes"},{"Customer ledger","Outstanding balances","ledger"}});
+        settingsGroup("Business",new String[][]{{"Business profile","Shop name, logo and GSTIN","profile"},{"Saved signature","Draw or upload JPG / PNG signature","signature"},{"Inventory & stock","Product quantities","inventory"},{"Sales reports","Business performance","reports"},{"Quotations","Create estimates","quotes"},{"Customer ledger","Outstanding balances","ledger"}});
         settingsGroup("Data & security",new String[][]{{"Backup & restore","Export and import local records","backupsettings"},{"Privacy & data controls","Manage or delete local data","datacontrols"}});
         settingsGroup("Legal & support",new String[][]{{"Privacy Policy","How information is handled","privacy"},{"Terms of Use","Usage rules","terms"},{"Help & FAQ","Common questions","help"},{"Contact Support","Email the developer","support"},{"About BillNexa","App information","about"}});
     }

@@ -17,7 +17,7 @@ import java.util.concurrent.*;
 import org.json.*;
 
 public class MainActivity extends Activity {
-    private static final int PICK_BACKUP=101,SAVE_BACKUP=102,SAVE_PDF=103,PICK_LOGO=104;
+    private static final int PICK_BACKUP=101,SAVE_BACKUP=102,SAVE_PDF=103,PICK_LOGO=104,PICK_SIGNATURE=105;
     private final ExecutorService pdfWorker=Executors.newSingleThreadExecutor();
     private String pendingPdf,pendingBackupPath;
     private NativeStore store;
@@ -26,7 +26,7 @@ public class MainActivity extends Activity {
     private WebView migration;
     private boolean migrationFinished=false;
     interface LogoResult {void accept(String value);}
-    private LogoResult logoResult;
+    private LogoResult logoResult,signatureResult;
     @Override public void onCreate(Bundle state){
         super.onCreate(state);
         if(state!=null){pendingPdf=state.getString("pendingPdf");pendingBackupPath=state.getString("pendingBackupPath");}
@@ -75,6 +75,13 @@ public class MainActivity extends Activity {
     void shareSummary(String value){Intent i=new Intent(Intent.ACTION_SEND);i.setType("text/plain");i.putExtra(Intent.EXTRA_TEXT,value);startActivity(Intent.createChooser(i,"Share bill summary"));}
     void clearLegacyAndExports(){WebStorage.getInstance().deleteAllData();pdfWorker.execute(()->{File dir=new File(getCacheDir(),"invoice-share");File[] folders=dir.listFiles();if(folders!=null)for(File f:folders){File[] children=f.listFiles();if(children!=null)for(File child:children)child.delete();f.delete();}dir.delete();});}
     void chooseLogo(LogoResult callback){logoResult=callback;Intent i=new Intent(Intent.ACTION_OPEN_DOCUMENT);i.setType("image/*");i.addCategory(Intent.CATEGORY_OPENABLE);i.putExtra(Intent.EXTRA_MIME_TYPES,new String[]{"image/jpeg","image/png","image/webp"});try{startActivityForResult(i,PICK_LOGO);}catch(Exception e){logoResult=null;tell("Image picker unavailable");}}
+    void chooseSignature(LogoResult callback){
+        signatureResult=callback;
+        Intent i=new Intent(Intent.ACTION_OPEN_DOCUMENT);
+        i.setType("image/*");i.addCategory(Intent.CATEGORY_OPENABLE);
+        i.putExtra(Intent.EXTRA_MIME_TYPES,new String[]{"image/jpeg","image/png"});
+        try{startActivityForResult(i,PICK_SIGNATURE);}catch(Exception e){signatureResult=null;callback.accept(null);tell("Image picker unavailable");}
+    }
     void pickBackup(){Intent i=new Intent(Intent.ACTION_OPEN_DOCUMENT);i.setType("application/json");i.addCategory(Intent.CATEGORY_OPENABLE);try{startActivityForResult(i,PICK_BACKUP);}catch(Exception e){tell("File picker unavailable");}}
     void saveNativeBackup(String value){if(pendingBackupPath!=null){tell("Finish the current backup first");return;}try{File f=File.createTempFile("billnexa-backup-",".json",getCacheDir());try(FileOutputStream out=new FileOutputStream(f)){out.write(value.getBytes(StandardCharsets.UTF_8));}pendingBackupPath=f.getAbsolutePath();Intent i=new Intent(Intent.ACTION_CREATE_DOCUMENT);i.setType("application/json");i.addCategory(Intent.CATEGORY_OPENABLE);i.putExtra(Intent.EXTRA_TITLE,"billnexa-backup.json");startActivityForResult(i,SAVE_BACKUP);}catch(Exception e){pendingBackupPath=null;tell("Backup unavailable");}}
     private String imageLogo(Uri uri)throws Exception{
@@ -179,6 +186,16 @@ public class MainActivity extends Activity {
     @Override protected void onActivityResult(int request,int result,Intent data){super.onActivityResult(request,result,data);Uri uri=result==RESULT_OK&&data!=null?data.getData():null;
         if(request==SAVE_PDF||request==SAVE_BACKUP){boolean backup=request==SAVE_BACKUP;String path=backup?pendingBackupPath:pendingPdf;if(backup)pendingBackupPath=null;else pendingPdf=null;if(path==null)return;if(uri==null){if(backup)new File(path).delete();return;}pdfWorker.execute(()->{try(InputStream in=new FileInputStream(path);OutputStream out=getContentResolver().openOutputStream(uri,"wt")){if(out==null)throw new IOException("Cannot open destination");byte[] b=new byte[16384];int n;while((n=in.read(b))!=-1)out.write(b,0,n);runOnUiThread(()->tell(backup?"Backup saved":path.endsWith(".jpg")?"Invoice JPG saved":"Invoice PDF saved"));}catch(Exception e){runOnUiThread(()->tell("File save failed"));}finally{if(backup)new File(path).delete();}});return;}
         if(request==PICK_BACKUP&&uri!=null){pdfWorker.execute(()->{try(InputStream in=getContentResolver().openInputStream(uri)){if(in==null)throw new IOException("Cannot read backup");String raw=NativeStore.read(in,40_000_000);runOnUiThread(()->{if(app!=null)app.restore(raw);else{try{JSONObject x=new JSONObject(raw);NativeStore.validate(x);new AlertDialog.Builder(this).setTitle("Restore backup?").setMessage("Replace local records with selected backup?").setNegativeButton("Cancel",null).setPositiveButton("Restore",(d,w)->{try{store.commit(x);launch();}catch(Exception e){tell("Restore failed");}}).show();}catch(Exception e){tell("Invalid backup");}}});}catch(Exception e){runOnUiThread(()->tell("Cannot read backup"));}});return;}
+        if(request==PICK_SIGNATURE){
+            LogoResult callback=signatureResult;signatureResult=null;
+            if(callback==null)return;
+            if(uri==null){callback.accept(null);return;}
+            pdfWorker.execute(()->{
+                try{String image=SignatureImage.importImage(getContentResolver(),uri);
+                    runOnUiThread(()->{if(!isDestroyed())callback.accept(image);});
+                }catch(Exception|OutOfMemoryError e){runOnUiThread(()->{if(!isDestroyed()){callback.accept(null);tell(e instanceof IOException&&e.getMessage()!=null?e.getMessage():"Could not read signature image");}});}
+            });return;
+        }
         if(request==PICK_LOGO){LogoResult callback=logoResult;logoResult=null;if(uri==null||callback==null)return;pdfWorker.execute(()->{try{String image=imageLogo(uri);runOnUiThread(()->callback.accept(image));}catch(Exception|OutOfMemoryError e){runOnUiThread(()->tell("Could not read logo"));}});}
     }
     @Override public void onBackPressed(){if(app!=null)app.back();else super.onBackPressed();}

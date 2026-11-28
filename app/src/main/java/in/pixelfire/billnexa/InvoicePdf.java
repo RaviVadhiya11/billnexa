@@ -131,6 +131,16 @@ final class InvoicePdf {
         }
         y+=65;
     }
+    private void drawSignatureImage(String value) throws Exception {
+        Bitmap bitmap=SignatureImage.decode(value);
+        if(bitmap==null)throw new IllegalArgumentException("Invalid signature image");
+        try{
+            float scale=Math.min(180f/bitmap.getWidth(),60f/bitmap.getHeight());
+            ensure(90);
+            if(canvas!=null){Paint p=new Paint(Paint.ANTI_ALIAS_FLAG|Paint.FILTER_BITMAP_FLAG);canvas.drawBitmap(bitmap,null,new RectF(M,y,M+bitmap.getWidth()*scale,y+bitmap.getHeight()*scale),p);}
+            y+=65;
+        }finally{bitmap.recycle();}
+    }
     private void drawShopLogo() {
         String logo=invoice.optString("logo","");
         String prefix="data:image/jpeg;base64,";
@@ -163,7 +173,8 @@ final class InvoicePdf {
         JSONArray pay=invoice.optJSONArray("paymentInfo");if(pay!=null&&pay.length()>0){heading("PAYMENT DETAILS");info(pay);}
         if(!invoice.optString("notes").isEmpty()){heading("NOTES / TERMS");paragraph(invoice.optString("notes"),10,false,INK);}
         ensure(60);y+=12;rect(M,y,W-M,y+1,LINE);y+=10;paragraph("Thank you for your business.",10,true,BLUE);
-        drawSignature(invoice.optJSONArray("signature"));
+        Object signature=invoice.opt("signature");
+        if(signature instanceof String)drawSignatureImage((String)signature);else drawSignature(invoice.optJSONArray("signature"));
         paragraph("Authorised signatory",10,true,INK);paragraph(invoice.optString("business"),10,false,MUTED);
         finish();
     }
